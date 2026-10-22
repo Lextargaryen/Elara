@@ -1,0 +1,13 @@
+# Core deep learning and multimodal model
+torch>=2.1.0
+sentence-transformers>=3.0.0
+
+# Multimodal media extractors
+Pillow>=10.0.0
+opencv-python>=4.8.0
+soundfile>=0.12.0
+pypdf>=4.0.0
+
+# Numeric and terminal interface
+numpy>=1.24.0
+rich>=13.0.0
