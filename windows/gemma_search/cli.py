@@ -589,6 +589,8 @@ def cmd_interactive(args, subparsers_dict=None):
 
             try:
                 tokens = shlex.split(line, posix=(sys.platform != "win32"))
+                if sys.platform == "win32":
+                    tokens = [t[1:-1] if len(t) >= 2 and t[0] == t[-1] and t[0] in ('"', "'") else t for t in tokens]
             except ValueError as e:
                 console.print(f"[red]Input syntax error:[/] {e}")
                 continue

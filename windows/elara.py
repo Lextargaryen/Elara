@@ -13,9 +13,10 @@ if str(root_dir) not in sys.path:
 # Automatically use local virtualenv Python if launched with system Python
 if sys.platform == "win32":
     venv_python = root_dir / ".venv" / "Scripts" / "python.exe"
+    this_script = str(Path(__file__).resolve())
     if venv_python.exists() and Path(sys.executable).resolve() != venv_python.resolve():
         import subprocess
-        sys.exit(subprocess.call([str(venv_python)] + sys.argv[1:]))
+        sys.exit(subprocess.call([str(venv_python), this_script] + sys.argv[1:]))
 
 from gemma_search.cli import main
 

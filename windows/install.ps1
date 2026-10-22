@@ -22,27 +22,28 @@ if (-not (Test-Path ".venv")) {
     python -m venv .venv
 }
 
+$VenvPy = Join-Path $ScriptDir ".venv\Scripts\python.exe"
+
 Write-Host "`n[3/5] Installing Python dependencies and PyTorch accelerator..." -ForegroundColor Green
-& .\.venv\Scripts\Activate.ps1
-python -m pip install --upgrade pip
+& $VenvPy -m pip install --upgrade pip
 
 $nvidiaSmi = Get-Command nvidia-smi -ErrorAction SilentlyContinue
 if ($nvidiaSmi) {
     Write-Host "[NVIDIA GPU Detected] Installing PyTorch with CUDA acceleration..." -ForegroundColor Green
-    pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+    & $VenvPy -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+    & $VenvPy -m pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu124
 } else {
     Write-Host "[No NVIDIA GPU Detected] Installing standard PyTorch for CPU..." -ForegroundColor Yellow
-    pip install torch torchvision
+    & $VenvPy -m pip install torch torchvision
+    & $VenvPy -m pip install -r requirements.txt
 }
-
-pip install -r requirements.txt
 
 Write-Host "`n[4/5] Downloading and caching Google EmbeddingGemma 2 model weights..." -ForegroundColor Green
 Write-Host "(This downloads the ~600 MB multimodal model once into local cache)" -ForegroundColor Cyan
-python -c "from sentence_transformers import SentenceTransformer; print('Downloading google/embeddinggemma-2...'); SentenceTransformer('google/embeddinggemma-2')"
+& $VenvPy -c "from sentence_transformers import SentenceTransformer; print('Downloading google/embeddinggemma-2...'); SentenceTransformer('google/embeddinggemma-2')"
 
 Write-Host "`n[5/5] Verifying complete system and hardware accelerator..." -ForegroundColor Green
-python elara.py status
+& $VenvPy (Join-Path $ScriptDir "elara.py") status
 
 Write-Host "`n========================================================" -ForegroundColor Cyan
 Write-Host " Installation Complete! Everything is ready to use." -ForegroundColor Green

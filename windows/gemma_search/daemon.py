@@ -23,10 +23,15 @@ def acquire_process_lock() -> Optional[Any]:
     """Acquire single-instance file lock cross-platform (using msvcrt on Windows, fcntl on Unix)."""
     Path(LOCK_PATH).parent.mkdir(parents=True, exist_ok=True)
     try:
-        lock_file = open(LOCK_PATH, "w+")
+        lock_file = open(LOCK_PATH, "a+")
         if sys.platform == "win32":
             import msvcrt
             try:
+                lock_file.seek(0, os.SEEK_END)
+                if lock_file.tell() == 0:
+                    lock_file.write("1\n")
+                    lock_file.flush()
+                lock_file.seek(0)
                 msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
                 return lock_file
             except (BlockingIOError, OSError):
@@ -51,6 +56,7 @@ def release_process_lock(lock_file: Any):
     try:
         if sys.platform == "win32":
             import msvcrt
+            lock_file.seek(0)
             msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
         else:
             import fcntl
@@ -304,7 +310,7 @@ def start_daemon_process() -> bool:
             python_bin = str(c)
             break
 
-    cmd = [python_bin, "-c", "from gemma_search.daemon import run_daemon_server; run_daemon_server()"]
+    cmd = [python_bin, "-c", f"import sys; sys.path.insert(0, r'{script_dir}'); from gemma_search.daemon import run_daemon_server; run_daemon_server()"]
 
     # On Windows, use CREATE_NO_WINDOW and DETACHED_PROCESS so no console appears
     kwargs = {

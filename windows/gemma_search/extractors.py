@@ -292,8 +292,16 @@ def extract_file_data(
 
     elif modality in ("code", "text"):
         try:
-            with open(file_path, "r", encoding="utf-8", errors="replace") as f:
-                content = f.read(MAX_TEXT_CHARS)
+            try:
+                with open(file_path, "r", encoding="utf-8", errors="strict") as f:
+                    content = f.read(MAX_TEXT_CHARS)
+            except (UnicodeDecodeError, ValueError):
+                try:
+                    with open(file_path, "r", encoding="utf-16", errors="strict") as f:
+                        content = f.read(MAX_TEXT_CHARS)
+                except Exception:
+                    with open(file_path, "r", encoding="latin-1", errors="replace") as f:
+                        content = f.read(MAX_TEXT_CHARS)
 
             lines = [line.strip() for line in content.splitlines() if line.strip()]
             snippet = " | ".join(lines[:3]) if lines else "Empty file"

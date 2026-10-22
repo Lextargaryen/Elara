@@ -41,13 +41,13 @@ python -m pip install --upgrade pip
 where nvidia-smi >nul 2>nul
 if %ERRORLEVEL% equ 0 (
     echo [NVIDIA GPU Detected] Installing PyTorch with CUDA acceleration...
-    pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+    "%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+    "%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install -r requirements.txt --extra-index-url https://download.pytorch.org/whl/cu124
 ) else (
     echo [No NVIDIA GPU Detected] Installing standard PyTorch for CPU...
-    pip install torch torchvision
+    "%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install torch torchvision
+    "%SCRIPT_DIR%.venv\Scripts\python.exe" -m pip install -r requirements.txt
 )
-
-pip install -r requirements.txt
 if %ERRORLEVEL% neq 0 (
     echo [WARNING] Some dependencies had warnings during install.
 )
@@ -55,14 +55,14 @@ if %ERRORLEVEL% neq 0 (
 echo.
 echo [4/5] Downloading and caching Google EmbeddingGemma 2 model weights...
 echo (This downloads the ~600 MB multimodal model once into local cache)
-python -c "from sentence_transformers import SentenceTransformer; print('Downloading google/embeddinggemma-2...'); SentenceTransformer('google/embeddinggemma-2')"
+"%SCRIPT_DIR%.venv\Scripts\python.exe" -c "from sentence_transformers import SentenceTransformer; print('Downloading google/embeddinggemma-2...'); SentenceTransformer('google/embeddinggemma-2')"
 if %ERRORLEVEL% neq 0 (
     echo [WARNING] Could not pre-download model. It will be automatically downloaded on first search/scan.
 )
 
 echo.
 echo [5/5] Verifying complete system and hardware accelerator...
-python elara.py status
+"%SCRIPT_DIR%.venv\Scripts\python.exe" "%SCRIPT_DIR%elara.py" status
 
 echo.
 echo ========================================================

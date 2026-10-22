@@ -186,7 +186,7 @@ class GlobalIndex:
                 # Skip reparse points / junctions to prevent infinite loops
                 child_path = os.path.join(dirpath, d)
                 try:
-                    if os.path.islink(child_path):
+                    if os.path.islink(child_path) or (hasattr(os.path, "isjunction") and os.path.isjunction(child_path)):
                         continue
                 except (OSError, PermissionError):
                     continue
